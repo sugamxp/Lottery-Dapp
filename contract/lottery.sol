@@ -2,25 +2,26 @@ pragma solidity ^0.4.20;
 
 contract Casino{
 
-    address public owner;
-   uint256 public minimumBet;
-   uint256 public totalBet;
+   //Variables 
+   address public owner;
+   uint256 public minBet;
    uint256 public numberOfBets;
+   uint256 public totalBet;
    uint256 public maxAmountOfBets = 100;
    uint256 public lastWinner = -1;
    address[] public players;
 	
-
-   	struct Player {
+   struct Player {
       uint256 amountBet;
       uint256 numberSelected;
    }
 
+   //Like a dictionary with the address being the key and Player struct being the value
    mapping(address => Player) public playerInfo;
 
-	constructor(uint256 _minimumBet) public{
+	constructor(uint256 _minBet) public{
 		owner = msg.sender;
-		if(_minimumBet != 0 ) minimumBet = _minimumBet;
+		if(_minBet != 0 ) minBet = _minBet;
 
 	}
 
@@ -39,7 +40,7 @@ contract Casino{
 		function bet(uint256 numberSelected) public payable {
 		require(checkPlayerExists(msg.sender)==false);
 		require(numberSelected >= 1 && numberSelected <= 10);
-		require(msg.value >= minimumBet);
+		require(msg.value >= minBet);
 		playerInfo[msg.sender].amountBet = msg.value;
 		playerInfo[msg.sender].numberSelected = numberSelected;
 		numberOfBets++;
@@ -49,7 +50,7 @@ contract Casino{
 	}
 
 	function generateNumberWinner() public {
-      uint256 numberGenerated = block.number % 10 + 1; // This isn't secure
+      uint256 numberGenerated = uint256(block.blockhash(block.number-1))%10 + 1;
       distributePrizes(numberGenerated);
    }
 
